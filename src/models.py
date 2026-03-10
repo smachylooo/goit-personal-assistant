@@ -1,3 +1,4 @@
+import phonenumbers
 from collections import UserDict
 from datetime import datetime, timedelta
 from typing import List, Optional
@@ -27,9 +28,18 @@ class Name(Field):
 class Phone(Field):
     @Field.value.setter
     def value(self, new_value: str) -> None:
-        if not (new_value.isdigit() and len(new_value) == 10):
-            raise ValueError("Error: Phone number must contain 10 digits.")
-        self._value = new_value
+        try:
+            parsed = phonenumbers.parse(new_value, "UA")
+            if not phonenumbers.is_valid_number(parsed):
+                raise ValueError('Error: Invalid phone number')
+            
+            self._value = phonenumbers.format_number(
+                parsed,
+                # Формат E164 — це стандарт для телефонів у базах даних.
+                phonenumbers.PhoneNumberFormat.E164
+            )
+        except:
+            raise ValueError('Error: Invalid phone number')
 
 class Birthday(Field):
     @Field.value.setter
