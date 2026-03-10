@@ -1,3 +1,4 @@
+import re
 from collections import UserDict
 from datetime import datetime, timedelta
 from typing import List, Optional
@@ -93,3 +94,33 @@ class AddressBook(UserDict):
                 elif bday.weekday() == 6: congr_date += timedelta(days=1)
                 upcoming.append({"name": record.name.value, "congratulation_date": congr_date.strftime("%d.%m.%Y")})
         return upcoming
+    
+# --- NOTES ---
+class Note:
+    def __init__(self, text: str) -> None:
+        if len(text) > 500:
+            raise ValueError("Error: Note too long (max 500 chars).")
+        self.text: str = text
+        self.tags: List[str] = [t.lower() for t in re.findall(r'#(\w+)', text)]
+
+    def add_to_end(self, additional_text: str) -> None:
+        new_text = self.text + " " + additional_text
+        if len(new_text) > 500:
+            raise ValueError("Error: Note would exceed 500 chars.")
+        self.text = new_text
+        new_tags = re.findall(r'#(\w+)', additional_text)
+        for tag in new_tags:
+            t_l = tag.lower()
+            if t_l not in self.tags: self.tags.append(t_l)
+
+class NoteBook(UserDict):
+    def add_note(self, note: Note) -> int:
+        note_id = len(self.data) + 1
+        self.data[note_id] = note
+        return note_id
+
+    def delete_note(self, note_id: int) -> bool:
+        if note_id in self.data:
+            del self.data[note_id]
+            return True
+        return False
