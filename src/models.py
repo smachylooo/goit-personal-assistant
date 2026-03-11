@@ -64,8 +64,7 @@ class Record:
     def __init__(self, name: str) -> None:
         self.name: Name = Name(name)
         self.phones: List[Phone] = []
-        self.birthday: Optional[Birthday] = None
-        self.email: Optional[str] = None    
+        self.birthday: Optional[Birthday] = None  
         self.address: Optional[str] = None
         self.notes: List[Note] = []
 
@@ -87,16 +86,17 @@ class Record:
     def add_birthday(self, birthday_string: str) -> None:
         self.birthday = Birthday(birthday_string)
 
+    def add_note(self, text: str) -> Note:
+        new_note = Note(text)
+        self.notes.append(new_note)
+        return new_note
+
     def __str__(self) -> str:
         phones_str = "; ".join(p.value for p in self.phones)
         birthday_str = f", birthday: {self.birthday}" if self.birthday else ""
         notes_str = f", notes: {len(self.notes)}" if self.notes else ""
         return f"{self.name.value:10} | {phones_str:20} {birthday_str}{notes_str}"
     
-    def add_note(self, text: str) -> Note:
-        new_note = Note(text)
-        self.notes.append(new_note)
-        return new_note
 class AddressBook(UserDict):
     def add_record(self, record: Record) -> None:
         self.data[record.name.value] = record
