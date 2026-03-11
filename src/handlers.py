@@ -100,22 +100,22 @@ def show_help(args, book):
         title="Assistant Bot Commands",
         header_style="bold white",
         border_style="bright_blue",
+        expand=True
     )
 
     table.add_column("Command", style="cyan", no_wrap=True)
-    table.add_column("Arguments", style="yellow", width=52, no_wrap=False)
-    table.add_column("Description", style="green", no_wrap=True)
+    table.add_column("Arguments", style="yellow", no_wrap=True)
+    table.add_column("Description", style="green")
 
-
-    table.add_row("add", "[name] [phone]", "Add a new contact")
-    table.add_row("change", "[name] [old_phone] [new_phone]", "Change phone number")
-    table.add_row("phone", "[name]", "Show phone numbers for contact")
-    table.add_row("all", "-", "Show all contacts")
-    table.add_row("add-birthday", "[name] [DD.MM.YYYY]", "Add birthday to contact")
-    table.add_row("show-birthday", "[name]", "Show contact birthday")
-    table.add_row("birthdays", "-", "Show upcoming birthdays within a week")
-    table.add_row("help", "-", "Show this help message")
-    table.add_row("exit / close", "-", "Exit the program")
+    table.add_row("add", r"\[name] \[phone]", "Add a new contact")
+    table.add_row("change", r"\[name] \[old_phone] \[new_phone]", "Change phone number")
+    table.add_row("phone", r"\[name]", "Show phone numbers for contact")
+    table.add_row("all", "no arguments needed", "Show all contacts")
+    table.add_row("add-birthday", r"\[name] \[DD.MM.YYYY]", "Add birthday to contact")
+    table.add_row("show-birthday", r"\[name]", "Show contact birthday")
+    table.add_row("birthdays", "no arguments needed", "Show upcoming birthdays within a week")
+    table.add_row("help", "no arguments needed", "Show this help message")
+    table.add_row("exit / close", "no arguments needed", "Exit the program")
 
     console.print(table)
 
