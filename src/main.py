@@ -6,16 +6,17 @@ from models import AddressBook, NoteBook
 from handlers import (
     add_contact, change_contact, show_phone, 
     show_all, add_birthday, show_birthday, birthdays_next_week,
-    add_note, show_notes, edit_note, delete_note, find_note_by_tag # Нотатки
+    add_contact_note, add_general_note, show_notes, 
+    find_note_by_tag, edit_note, delete_note, clear_notes # Нотатки
 )
+
 
 def main() -> None:
     # Ініціалізація colorama для кольорових тегів у нотатках
     init(autoreset=True)
     
     # Завантажуємо обидві бази даних
-    book: AddressBook = load_data("addressbook.pkl", AddressBook)
-    notes: NoteBook = load_data("notes.pkl", NoteBook)
+    book, notes = load_data()
     
     print("Welcome to the assistant bot!")
     
@@ -31,20 +32,21 @@ def main() -> None:
         "show-birthday": show_birthday,
         "birthdays": birthdays_next_week,
         # Команди для нотаток (передаємо об'єкт notes)
-        "add-note": lambda args, b: add_note(args, notes),
-        "notes": lambda args, b: show_notes(args, notes),
-        "edit-note": lambda args, b: edit_note(args, notes),
-        "find-tag": lambda args, b: find_note_by_tag(args, notes),
-        "delete-note": lambda args, b: delete_note(args, notes),
+        "add-note": lambda args, book: add_contact_note(args, book, notes),
+        "note": lambda args, book: add_general_note(args, notes),
+        "notes": lambda args, book: show_notes(args, notes),
+        "find-tag": lambda args, book: find_note_by_tag(args, notes),
+        "edit-note": lambda args, book: edit_note(args, notes),
+        "delete-note": lambda args, book: delete_note(args, notes),
+        "clear-notes": lambda args, book: clear_notes(args, notes),
     }
 
     try:
         while True:
             user_input: str = input("Enter a command: ").strip()
-            command, args = parse_input(user_input)
+            if not user_input: continue
 
-            if not command:
-                continue
+            command, args = parse_input(user_input)
 
             if command in ["close", "exit"]:
                 print("Good bye!")
@@ -59,8 +61,7 @@ def main() -> None:
                 print("Invalid command.")
     finally:
         # Зберігаємо обидві бази даних при виході
-        save_data(book, "addressbook.pkl")
-        save_data(notes, "notes.pkl")
+        save_data(book, notes)
 
 if __name__ == "__main__":
     main()

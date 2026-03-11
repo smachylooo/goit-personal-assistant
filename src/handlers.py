@@ -1,8 +1,11 @@
+import random
 from typing import List, Union
 from prettytable import PrettyTable
 from colorama import Fore, Style
 from models import Record, AddressBook, Note, NoteBook
 from utils import input_error
+
+NOTE_COLORS = [Fore.CYAN, Fore.GREEN, Fore.YELLOW, Fore.MAGENTA, Fore.BLUE, Fore.LIGHTWHITE_EX]
 
 @input_error
 def add_contact(args: List[str], book: AddressBook) -> str:
@@ -58,57 +61,80 @@ def birthdays_next_week(args: List[str], book: AddressBook) -> str:
 
 # --- NOTES HANDLERS (with PrettyTable + Colorama) ---
 
+# 1. Додавання нотатки КОНКРЕТНОМУ контакту
 @input_error
-def add_note(args: List[str], notes: NoteBook) -> str:
+def add_contact_note(args, book: AddressBook, notes: NoteBook):
+    if len(args) < 2:
+        return "Error: Enter name and note text."
+    name, text = args[0], " ".join(args[1:])
+    record = book.find(name)
+    if not record:
+        return f"Contact {name} not found."
+    
+    new_note = record.add_note(text) # Додали в контакт
+    note_id = notes.add_note(new_note, contact_name=name) # Синхронізували в блокнот
+    return f"Note added to {name} (ID: {note_id})."
+
+@input_error
+def add_general_note(args, notes: NoteBook):
+    if not args:
+        return "Error: Enter note text."
     text = " ".join(args)
-    note_id = notes.add_note(Note(text))
-    return f"Note added with ID: {note_id}"
+    new_note = Note(text)
+    note_id = notes.add_note(new_note) # owner буде None
+    return f"General note saved (ID: {note_id})."
 
 def show_notes(args: List[str], notes: NoteBook):
     if not notes.data: return "Notebook is empty."
     table = PrettyTable()
-    table.field_names = ["ID", "Content", "Tags"]
+    table.field_names = ["ID", "Owner", "Content", "Tags"] # Додано Owner
     table.align["Content"] = "l"
     table._max_width = {"Content": 50}
     
-    for nid, note in notes.data.items():
-        # Тільки тут використовуємо кольори для тегів
-        colored_tags = [f"{Fore.CYAN}#{t}{Style.RESET_ALL}" for t in note.tags]
-        table.add_row([nid, note.text, ", ".join(colored_tags) or "-"])
+    for nid, data in notes.data.items():
+        note = data["note"] # Дістаємо нотатку зі словника
+        owner = data["owner"] if data["owner"] else "---"
+        colored_tags = [f"{random.choice(NOTE_COLORS)}#{t}{Style.RESET_ALL}" for t in note.tags]
+        table.add_row([nid, owner, note.text, ", ".join(colored_tags) or "-"])
     return table
 
 @input_error
 def edit_note(args: List[str], notes: NoteBook) -> str:
+    if len(args) < 2:
+        return "Error: Enter ID and additional text."
     note_id, text = int(args[0]), " ".join(args[1:])
     if note_id in notes.data:
-        notes.data[note_id].add_to_end(text)
+        # Дістаємо об'єкт нотатки зі словника для редагування
+        notes.data[note_id]["note"].add_to_end(text)
         return f"Note {note_id} updated."
     return "Note not found."
 
 @input_error
 def find_note_by_tag(args: List[str], notes: NoteBook) -> Union[PrettyTable, str]:
     if not args:
-        return "Error: Please provide a tag to search for (e.g., 'find-tag work')."
+        return "Error: Please provide a tag (e.g., 'find-tag work')."
     
-    tag_to_find = args[0].lower().replace("#", "") # Видаляємо #, якщо користувач його ввів
+    tag_to_find = args[0].lower().replace("#", "")
+    colors = [Fore.CYAN, Fore.GREEN, Fore.YELLOW, Fore.MAGENTA, Fore.BLUE, Fore.LIGHTWHITE_EX]
     
-    # Створюємо таблицю для результатів
     table = PrettyTable()
-    table.field_names = ["ID", "Content", "Tags"]
+    table.field_names = ["ID", "Owner", "Content", "Tags"]
     table.align["Content"] = "l"
+    table.align["Owner"] = "l"
     table._max_width = {"Content": 50}
     
     found = False
-    for nid, note in notes.data.items():
+    for nid, data in notes.data.items():
+        note = data["note"]
+        owner = data["owner"] if data["owner"] else "---"
         if tag_to_find in note.tags:
-            colored_tags = [f"{Fore.CYAN}#{t}{Style.RESET_ALL}" for t in note.tags]
-            table.add_row([nid, note.text, ", ".join(colored_tags)])
+            # Магія випадкових кольорів для тегів
+            colored_tags = [f"{random.choice(colors)}#{t}{Style.RESET_ALL}" for t in note.tags]
+            table.add_row([nid, owner, note.text, ", ".join(colored_tags)])
             found = True
             
-    if not found:
-        return f"No notes found with tag #{tag_to_find}."
+    return table if found else f"No notes found with tag #{tag_to_find}."
     
-    return table
 
 @input_error
 def delete_note(args: List[str], notes: NoteBook) -> str:

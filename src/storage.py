@@ -1,24 +1,37 @@
 import pickle
 from pathlib import Path
-from typing import Any
 from models import AddressBook, NoteBook
 
-# Визначаємо шлях до папки користувача, щоб дані не губилися
-SAVE_PATH = Path.home() / "assistant_bot_data"
-SAVE_PATH.mkdir(exist_ok=True)
+# Визначаємо шлях до папки в домашній директорії користувача
+SAVE_DIR = Path.home() / "assistant_bot_data"
+BOOK_FILE = SAVE_DIR / "addressbook.pkl"
+NOTES_FILE = SAVE_DIR / "notes.pkl"
 
-def save_data(data: Any, filename: str) -> None:
-    """Універсальна функція для збереження будь-якого об'єкта (книги або нотаток)."""
-    file_path = SAVE_PATH / filename
-    with open(file_path, "wb") as f:
-        pickle.dump(data, f)
+def save_data(book: AddressBook, notes: NoteBook):
+    # Створюємо папку, якщо її ще немає
+    SAVE_DIR.mkdir(parents=True, exist_ok=True)
+    
+    # Зберігаємо книгу контактів
+    with open(BOOK_FILE, "wb") as f:
+        pickle.dump(book, f)
+        
+    # Зберігаємо блокнот
+    with open(NOTES_FILE, "wb") as f:
+        pickle.dump(notes, f)
 
-def load_data(filename: str, default_type: Any) -> Any:
-    """Універсальна функція для завантаження даних."""
-    file_path = SAVE_PATH / filename
-    try:
-        with open(file_path, "rb") as f:
-            return pickle.load(f)
-    except (FileNotFoundError, EOFError):
-        # Якщо файлу немає, створюємо новий об'єкт вказаного типу (AddressBook або NoteBook)
-        return default_type()
+def load_data():
+    # Завантажуємо книгу контактів (або створюємо нову)
+    if BOOK_FILE.exists():
+        with open(BOOK_FILE, "rb") as f:
+            book = pickle.load(f)
+    else:
+        book = AddressBook()
+
+    # Завантажуємо нотатки (або створюємо нові)
+    if NOTES_FILE.exists():
+        with open(NOTES_FILE, "rb") as f:
+            notes = pickle.load(f)
+    else:
+        notes = NoteBook()
+
+    return book, notes
