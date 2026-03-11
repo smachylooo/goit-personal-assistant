@@ -2,54 +2,121 @@ from typing import List
 from models import Record, AddressBook
 from utils import input_error
 
+from rich.console import Console
+from rich.table import Table
+
+console = Console()
+
+
 @input_error
 def add_contact(args: List[str], book: AddressBook) -> str:
     name, phone = args
     record = book.find(name)
+
     if record is None:
         record = Record(name)
         book.add_record(record)
-        message = "Contact added."
-    else:
-        message = "Phone added."
+        record.add_phone(phone)
+        return f"[green]✔ Contact '{name}' added with phone {phone}[/green]"
+
     record.add_phone(phone)
-    return message
+    return f"[cyan]📞 Phone {phone} added to contact '{name}'[/cyan]"
+
 
 @input_error
 def change_contact(args: List[str], book: AddressBook) -> str:
     name, old_p, new_p = args
     record = book.find(name)
-    if not record: raise KeyError
+
+    if not record:
+        raise KeyError
+
     record.edit_phone(old_p, new_p)
-    return "Contact updated."
+
+    return f"[yellow]✏ Phone for '{name}' updated: {old_p} → {new_p}[/yellow]"
+
 
 @input_error
 def show_phone(args: List[str], book: AddressBook) -> str:
     name = args[0]
     record = book.find(name)
-    if not record: raise KeyError
-    return f"{name}: {', '.join(p.value for p in record.phones)}"
+
+    if not record:
+        raise KeyError
+
+    phones = ", ".join(p.value for p in record.phones)
+
+    return f"[cyan]📞 {name}: {phones}[/cyan]"
+
 
 @input_error
 def add_birthday(args: List[str], book: AddressBook) -> str:
     name, bday = args
     record = book.find(name)
-    if not record: raise KeyError
+
+    if not record:
+        raise KeyError
+
     record.add_birthday(bday)
-    return "Birthday added."
+
+    return f"[magenta]🎂 Birthday for '{name}' set to {bday}[/magenta]"
+
 
 @input_error
 def show_birthday(args: List[str], book: AddressBook) -> str:
     name = args[0]
     record = book.find(name)
-    if not record or not record.birthday: return "Error: Birthday not found."
-    return f"{name}'s birthday: {record.birthday}"
+
+    if not record or not record.birthday:
+        return "[red]Birthday not found[/red]"
+
+    return f"[magenta]🎂 {name}'s birthday: {record.birthday}[/magenta]"
+
 
 def show_all(args: List[str], book: AddressBook) -> str:
-    if not book.data: return "Book is empty."
-    return "\n".join([str(record) for record in book.data.values()])
+    if not book.data:
+        return "[yellow]Address book is empty[/yellow]"
+
+    return "\n".join(str(record) for record in book.data.values())
+
 
 def birthdays_next_week(args: List[str], book: AddressBook) -> str:
     upcoming = book.get_upcoming_birthdays()
-    if not upcoming: return "No upcoming birthdays."
-    return "\n".join([f"{u['name']}: {u['congratulation_date']}" for u in upcoming])
+
+    if not upcoming:
+        return "[yellow]No upcoming birthdays[/yellow]"
+
+    result = "\n".join(
+        f"[magenta]🎉 {u['name']} → {u['congratulation_date']}[/magenta]"
+        for u in upcoming
+    )
+
+    return result
+
+
+def show_help(args, book):
+
+    table = Table(
+        title="Assistant Bot Commands",
+        header_style="bold white",
+        border_style="bright_blue",
+    )
+
+    table.add_column("Command", style="cyan", no_wrap=True)
+    table.add_column("Arguments", style="yellow", width=52, no_wrap=False)
+    table.add_column("Description", style="green", no_wrap=True)
+
+
+    table.add_row("add", "[name] [phone]", "Add a new contact")
+    table.add_row("change", "[name] [old_phone] [new_phone]", "Change phone number")
+    table.add_row("phone", "[name]", "Show phone numbers for contact")
+    table.add_row("all", "-", "Show all contacts")
+    table.add_row("add-birthday", "[name] [DD.MM.YYYY]", "Add birthday to contact")
+    table.add_row("show-birthday", "[name]", "Show contact birthday")
+    table.add_row("birthdays", "-", "Show upcoming birthdays within a week")
+    table.add_row("help", "-", "Show this help message")
+    table.add_row("exit / close", "-", "Exit the program")
+
+    console.print(table)
+
+    return ""
