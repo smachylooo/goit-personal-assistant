@@ -1,6 +1,6 @@
 from typing import List
-from .models import Record, AddressBook
-from .utils import input_error
+from models import Record, AddressBook
+from utils import input_error
 
 @input_error
 def add_contact(args: List[str], book: AddressBook) -> str:
