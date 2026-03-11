@@ -20,7 +20,7 @@ class Field:
 class Name(Field):
     @Field.value.setter
     def value(self, new_value: str) -> None:
-        if not new_value or not new_value.strip():
+        if not new_value.strip():
             raise ValueError("Error: Name cannot be empty.")
         self._value = new_value.strip()
 
@@ -29,6 +29,13 @@ class Phone(Field):
     def value(self, new_value: str) -> None:
         if not (new_value.isdigit() and len(new_value) == 10):
             raise ValueError("Error: Phone number must contain 10 digits.")
+        self._value = new_value
+
+class Email(Field):
+    @Field.value.setter
+    def value(self, new_value: str) -> None:
+        if not new_value.strip():
+            raise ValueError("Error: Email cannot be empty.")
         self._value = new_value
 
 class Birthday(Field):
@@ -47,6 +54,7 @@ class Record:
         self.name: Name = Name(name)
         self.phones: List[Phone] = []
         self.birthday: Optional[Birthday] = None
+        self.emails: List[Email] = []
 
     def add_phone(self, phone_number: str) -> None:
         self.phones.append(Phone(phone_number))
@@ -63,13 +71,26 @@ class Record:
             raise ValueError(f"Error: Phone {old_number} not found.")
         phone_obj.value = new_number
 
+    def add_email(self, email: str) -> None:
+        self.emails.append(Email(email))
+
+    def find_email(self, email: str) -> Optional[Email]:
+        return next((e for e in self.emails if e.value == email), None)
+    
+    def edit_email(self, old_email: str, new_email: str) -> None:
+        email_obj = self.find_email(old_email)
+        if not email_obj:
+            raise ValueError(f"Error: Email {old_email} not found.")
+        email_obj.value = new_email
+
     def add_birthday(self, birthday_string: str) -> None:
         self.birthday = Birthday(birthday_string)
 
     def __str__(self) -> str:
         phones_str = "; ".join(p.value for p in self.phones)
+        emails_str = "; ".join(e.value for e in self.emails)
         birthday_str = f", birthday: {self.birthday}" if self.birthday else ""
-        return f"{self.name.value:10} | {phones_str:20} {birthday_str}"
+        return f"{self.name.value:20} | {phones_str:20} | {emails_str:20} | {birthday_str}"
 
 class AddressBook(UserDict):
     def add_record(self, record: Record) -> None:

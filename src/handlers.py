@@ -24,11 +24,35 @@ def change_contact(args: List[str], book: AddressBook) -> str:
     return "Contact updated."
 
 @input_error
-def show_phone(args: List[str], book: AddressBook) -> str:
+def show_phones(args: List[str], book: AddressBook) -> str:
     name = args[0]
     record = book.find(name)
     if not record: raise KeyError
     return f"{name}: {', '.join(p.value for p in record.phones)}"
+
+@input_error
+def add_email(args: List[str], book: AddressBook) -> str:
+    name, email = args
+    record = book.find(name)
+
+    if record is None:
+        raise KeyError
+
+    record.add_email(email)
+    return "Email added."
+
+@input_error
+def show_email(args: List[str], book: AddressBook) -> str:
+    name = args[0]
+    record = book.find(name)
+
+    if not record:
+        raise KeyError
+
+    if not record.emails:
+        return "No emails found."
+
+    return f"{name}: {', '.join(e.value for e in record.emails)}"
 
 @input_error
 def add_birthday(args: List[str], book: AddressBook) -> str:
