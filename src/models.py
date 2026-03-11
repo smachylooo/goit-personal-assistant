@@ -74,16 +74,29 @@ class Record:
             raise ValueError(f"Error: Phone {old_number} not found.")
         phone_obj.value = new_number
 
-    def add_email(self, email: str) -> None:
-        self.emails.append(Email(email))
+    def find_email(self, email: str):
+        for e in self.emails:
+            if e.value == email:
+                return e
+        return None
 
-    def find_email(self, email: str) -> Optional[Email]:
-        return next((is_valid_email(e) for e in self.emails if e.value == email), None)
-    
+    def add_email(self, email: str) -> None:
+        if self.find_email(email):
+            raise ValueError(f"Error: Email {email} already exist.")
+        self.emails.append(Email(email))    
+
     def edit_email(self, old_email: str, new_email: str) -> None:
+        old_email = old_email.strip()
+        new_email = new_email.strip()
+
         email_obj = self.find_email(old_email)
         if not email_obj:
             raise ValueError(f"Error: Email {old_email} not found.")
+
+        existing = self.find_email(new_email)
+        if existing and existing is not email_obj:
+            raise ValueError("Email already exists.")
+
         email_obj.value = new_email
 
     def add_birthday(self, birthday_string: str) -> None:
