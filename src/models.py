@@ -1,3 +1,4 @@
+import re
 import phonenumbers
 from collections import UserDict
 from datetime import datetime, timedelta
@@ -51,12 +52,30 @@ class Birthday(Field):
     def __str__(self) -> str:
         return self._value.strftime("%d.%m.%Y")
 
+class Note:
+    def __init__(self, text: str) -> None:
+        if len(text) > 500:
+            raise ValueError("Error: Note too long (max 500 chars).")
+        self.text: str = text
+        self.tags: List[str] = [t.lower() for t in re.findall(r'#(\w+)', text)]
+
+    def add_to_end(self, additional_text: str) -> None:
+        new_text = self.text + " " + additional_text
+        if len(new_text) > 500:
+            raise ValueError("Error: Note would exceed 500 chars.")
+        self.text = new_text
+        new_tags = re.findall(r'#(\w+)', additional_text)
+        for tag in new_tags:
+            t_l = tag.lower()
+            if t_l not in self.tags: self.tags.append(t_l)
+
 class Record:
     def __init__(self, name: str) -> None:
         self.name: Name = Name(name)
         self.phones: List[Phone] = []
         self.birthday: Optional[Birthday] = None
         self.emails: List[Email] = []
+        self.notes: List[Note] = []
 
     def find_phone(self, phone_number: str) -> Optional[Phone]:
         normalized = normalize_phone(phone_number)
@@ -109,11 +128,17 @@ class Record:
     def add_birthday(self, birthday_string: str) -> None:
         self.birthday = Birthday(birthday_string)
 
+    def add_note(self, text: str) -> Note:
+        new_note = Note(text)
+        self.notes.append(new_note)
+        return new_note
+
     def __str__(self) -> str:
         phones_str = "; ".join(p.value for p in self.phones)
         emails_str = "; ".join(e.value for e in self.emails)
         birthday_str = f", birthday: {self.birthday}" if self.birthday else ""
-        return f"{self.name.value:20} | {phones_str:20} | {emails_str:20} | {birthday_str}"
+        notes_str = f"notes: {len(self.notes)}" if self.notes else ""
+        return f"{self.name.value:20} | {phones_str:20} | {emails_str:20} | {birthday_str:10} | {notes_str}"
 
 class AddressBook(UserDict):
     def add_record(self, record: Record) -> None:
@@ -137,3 +162,20 @@ class AddressBook(UserDict):
                 elif bday.weekday() == 6: congr_date += timedelta(days=1)
                 upcoming.append({"name": record.name.value, "congratulation_date": congr_date.strftime("%d.%m.%Y")})
         return upcoming
+
+
+class NoteBook(UserDict):
+    def add_note(self, note: Note, contact_name: Optional[str] = None) -> int:
+        note_id = max(self.data.keys(), default=0) + 1
+        # Зберігаємо і саму нотатку, і ім'я контакту (якщо воно є)
+        self.data[note_id] = {
+            "note": note,
+            "owner": contact_name # Може бути None для загальних нотаток
+        }
+        return note_id
+
+    def delete_note(self, note_id: int) -> bool:
+        if note_id in self.data:
+            del self.data[note_id]
+            return True
+        return False

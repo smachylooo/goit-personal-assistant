@@ -5,7 +5,7 @@ def input_error(func: Callable) -> Callable:
         try:
             return func(*args, **kwargs)
         except ValueError as e: return str(e)
-        except KeyError: return "Error: Contact not found."
+        except KeyError: return "Error: Contact or note not found."
         except IndexError: return "Error: Arguments missing."
         except Exception as e: return f"Unexpected error: {e}"
     return inner

@@ -1,16 +1,30 @@
 import pickle
 from pathlib import Path
-from models import AddressBook
+from models import AddressBook, NoteBook
 
-DATA_FILE = Path(__file__).resolve().parent.parent / "addressbook.pkl"
+FILE_PATH = Path(__file__).resolve().parent.parent
+BOOK_FILE = FILE_PATH / "addressbook.pkl"
+NOTES_FILE = FILE_PATH / "notes.pkl"
 
-def save_data(book: AddressBook, filename: Path = DATA_FILE) -> None:
-    with open(filename, "wb") as f:
+def save_data(book: AddressBook, notes: NoteBook):
+    with open(BOOK_FILE, "wb") as f:
         pickle.dump(book, f)
+        
+    with open(NOTES_FILE, "wb") as f:
+        pickle.dump(notes, f)
 
-def load_data(filename: Path = DATA_FILE) -> AddressBook:
-    try:
-        with open(filename, "rb") as f:
-            return pickle.load(f)
-    except FileNotFoundError:
-        return AddressBook()
+def load_data():
+    if BOOK_FILE.exists():
+        with open(BOOK_FILE, "rb") as f:
+            book = pickle.load(f)
+    else:
+        book = AddressBook()
+
+
+    if NOTES_FILE.exists():
+        with open(NOTES_FILE, "rb") as f:
+            notes = pickle.load(f)
+    else:
+        notes = NoteBook()
+
+    return book, notes

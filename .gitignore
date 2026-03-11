@@ -1,3 +1,5 @@
 .env
 src/__pycache__
 addressbook.pkl
+notes.pkl
+.DS_Store

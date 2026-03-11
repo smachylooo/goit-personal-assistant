@@ -1,3 +1,6 @@
 colorama==0.4.6
 phonenumbers==9.0.25
 RapidFuzz==3.14.3
+
+# Бібліотека для створення красивих ASCII-таблиць у терміналі
+prettytable==3.10.0
