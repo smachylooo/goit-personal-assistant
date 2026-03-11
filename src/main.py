@@ -3,8 +3,8 @@ from storage import save_data, load_data
 from utils import parse_input
 from models import AddressBook
 from handlers import (
-    add_contact, change_contact, show_phone, 
-    show_all, add_birthday, show_birthday, birthdays_next_week
+    add_contact, change_contact, show_phones, 
+    show_all, add_birthday, show_birthday, birthdays_next_week, add_email, change_email, show_email
 )
 
 def main() -> None:

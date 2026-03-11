@@ -1,7 +1,7 @@
 from collections import UserDict
 from datetime import datetime, timedelta
 from typing import List, Optional
-from .helper import is_valid_email
+from helper import is_valid_email
 
 class Field:
     def __init__(self, value: str) -> None:
