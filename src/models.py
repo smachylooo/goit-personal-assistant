@@ -123,7 +123,7 @@ class AddressBook(UserDict):
 
 class NoteBook(UserDict):
     def add_note(self, note: Note, contact_name: Optional[str] = None) -> int:
-        note_id = len(self.data) + 1
+        note_id = max(self.data.keys(), default=0) + 1
         # Зберігаємо і саму нотатку, і ім'я контакту (якщо воно є)
         self.data[note_id] = {
             "note": note,
