@@ -2,7 +2,7 @@ import phonenumbers
 from collections import UserDict
 from datetime import datetime, timedelta
 from typing import List, Optional
-from .helper import normalize_phone
+from helper import normalize_phone
 
 class Field:
     def __init__(self, value: str) -> None:
