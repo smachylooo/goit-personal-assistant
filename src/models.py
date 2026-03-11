@@ -1,7 +1,8 @@
+import phonenumbers
 from collections import UserDict
 from datetime import datetime, timedelta
 from typing import List, Optional
-from helper import is_valid_email
+from helper import is_valid_email, normalize_phone
 
 class Field:
     def __init__(self, value: str) -> None:
@@ -28,9 +29,7 @@ class Name(Field):
 class Phone(Field):
     @Field.value.setter
     def value(self, new_value: str) -> None:
-        if not (new_value.isdigit() and len(new_value) == 10):
-            raise ValueError("Error: Phone number must contain 10 digits.")
-        self._value = new_value
+        self._value = normalize_phone(new_value)
 
 class Email(Field):
     @Field.value.setter
@@ -59,19 +58,27 @@ class Record:
         self.birthday: Optional[Birthday] = None
         self.emails: List[Email] = []
 
-    def add_phone(self, phone_number: str) -> None:
-        self.phones.append(Phone(phone_number))
-
     def find_phone(self, phone_number: str) -> Optional[Phone]:
+        normalized = normalize_phone(phone_number)
         for phone in self.phones:
-            if phone.value == phone_number:
+            if phone.value == normalized:
                 return phone
         return None
+
+    def add_phone(self, phone_number: str) -> None:
+        if self.find_phone(phone_number):
+            raise ValueError(f"Error: Phone {phone_number} already exists.")
+        self.phones.append(Phone(phone_number))
 
     def edit_phone(self, old_number: str, new_number: str) -> None:
         phone_obj = self.find_phone(old_number)
         if not phone_obj:
             raise ValueError(f"Error: Phone {old_number} not found.")
+
+        existing_phone = self.find_phone(new_number)
+        if existing_phone and existing_phone is not phone_obj:
+            raise ValueError(f"Error: Phone {new_number} already exists.")
+        
         phone_obj.value = new_number
 
     def find_email(self, email: str):
