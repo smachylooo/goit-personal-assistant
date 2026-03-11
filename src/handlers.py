@@ -89,7 +89,11 @@ def show_notes(args: List[str], notes: NoteBook):
     table = PrettyTable()
     table.field_names = ["ID", "Owner", "Content", "Tags"] # Додано Owner
     table.align["Content"] = "l"
-    table._max_width = {"Content": 50}
+    # Use PrettyTable public API for column widths instead of private _max_width
+    if hasattr(table, "max_widths"):
+        table.max_widths = {"Content": 50}
+    elif hasattr(table, "max_width"):
+        table.max_width = 50
     
     for nid, data in notes.data.items():
         note = data["note"] # Дістаємо нотатку зі словника
