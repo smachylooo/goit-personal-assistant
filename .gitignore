@@ -1,5 +1,17 @@
-.env
-src/__pycache__
-addressbook.pkl
-notes.pkl
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+.env/
+venv/
+
+# VS Code
+.vscode/
+
+# macOS
 .DS_Store
+
+# Project data files
+*.pkl
