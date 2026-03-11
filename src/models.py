@@ -1,6 +1,7 @@
 from collections import UserDict
 from datetime import datetime, timedelta
 from typing import List, Optional
+from .helper import is_valid_email
 
 class Field:
     def __init__(self, value: str) -> None:
@@ -36,6 +37,8 @@ class Email(Field):
     def value(self, new_value: str) -> None:
         if not new_value.strip():
             raise ValueError("Error: Email cannot be empty.")
+        if not is_valid_email(new_value):
+            raise ValueError('Error: email address is wrong.')
         self._value = new_value
 
 class Birthday(Field):
@@ -75,7 +78,7 @@ class Record:
         self.emails.append(Email(email))
 
     def find_email(self, email: str) -> Optional[Email]:
-        return next((e for e in self.emails if e.value == email), None)
+        return next((is_valid_email(e) for e in self.emails if e.value == email), None)
     
     def edit_email(self, old_email: str, new_email: str) -> None:
         email_obj = self.find_email(old_email)
