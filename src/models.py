@@ -137,7 +137,7 @@ class Record:
         phones_str = "; ".join(p.value for p in self.phones)
         emails_str = "; ".join(e.value for e in self.emails)
         birthday_str = f", birthday: {self.birthday}" if self.birthday else ""
-        notes_str = f", notes: {len(self.notes)}" if self.notes else ""
+        notes_str = f"notes: {len(self.notes)}" if self.notes else ""
         return f"{self.name.value:20} | {phones_str:20} | {emails_str:20} | {birthday_str:10} | {notes_str}"
 
 class AddressBook(UserDict):
