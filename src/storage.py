@@ -2,8 +2,9 @@ import pickle
 from pathlib import Path
 from models import AddressBook, NoteBook
 
-BOOK_FILE = Path(__file__).resolve().parent.parent / "addressbook.pkl"
-NOTES_FILE = Path(__file__).resolve().parent.parent / "notes.pkl"
+FILE_PATH = Path(__file__).resolve().parent.parent
+BOOK_FILE = FILE_PATH / "addressbook.pkl"
+NOTES_FILE = FILE_PATH / "notes.pkl"
 
 def save_data(book: AddressBook, notes: NoteBook):
     with open(BOOK_FILE, "wb") as f:
