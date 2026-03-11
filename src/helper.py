@@ -1,4 +1,9 @@
+import re
 import phonenumbers
+
+EMAIL_REGEX = r'^[\w\.-]+@[\w\.-]+\.\w+$'
+def is_valid_email(email: str) -> bool:
+    return re.match(EMAIL_REGEX, email) is not None
 
 def normalize_phone(phone_number: str) -> str:
     parsed = phonenumbers.parse(phone_number, "UA")

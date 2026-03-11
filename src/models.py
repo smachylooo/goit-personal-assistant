@@ -2,7 +2,7 @@ import phonenumbers
 from collections import UserDict
 from datetime import datetime, timedelta
 from typing import List, Optional
-from helper import normalize_phone
+from helper import is_valid_email, normalize_phone
 
 class Field:
     def __init__(self, value: str) -> None:
@@ -36,6 +36,8 @@ class Email(Field):
     def value(self, new_value: str) -> None:
         if not new_value.strip():
             raise ValueError("Error: Email cannot be empty.")
+        if not is_valid_email(new_value):
+            raise ValueError('Error: email address is wrong.')
         self._value = new_value
 
 class Birthday(Field):
@@ -79,16 +81,29 @@ class Record:
         
         phone_obj.value = new_number
 
-    def add_email(self, email: str) -> None:
-        self.emails.append(Email(email))
+    def find_email(self, email: str):
+        for e in self.emails:
+            if e.value == email:
+                return e
+        return None
 
-    def find_email(self, email: str) -> Optional[Email]:
-        return next((e for e in self.emails if e.value == email), None)
-    
+    def add_email(self, email: str) -> None:
+        if self.find_email(email):
+            raise ValueError(f"Error: Email {email} already exist.")
+        self.emails.append(Email(email))    
+
     def edit_email(self, old_email: str, new_email: str) -> None:
+        old_email = old_email.strip()
+        new_email = new_email.strip()
+
         email_obj = self.find_email(old_email)
         if not email_obj:
             raise ValueError(f"Error: Email {old_email} not found.")
+
+        existing = self.find_email(new_email)
+        if existing and existing is not email_obj:
+            raise ValueError("Email already exists.")
+
         email_obj.value = new_email
 
     def add_birthday(self, birthday_string: str) -> None:
