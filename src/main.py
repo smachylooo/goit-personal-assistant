@@ -4,7 +4,7 @@ from .utils import parse_input
 from .models import AddressBook
 from .handlers import (
     add_contact, change_contact, show_phones, 
-    show_all, add_birthday, show_birthday, birthdays_next_week, add_email, show_email
+    show_all, add_birthday, show_birthday, birthdays_next_week, add_email, show_email, change_email
 )
 
 def main() -> None:
@@ -18,6 +18,7 @@ def main() -> None:
         "phone": show_phones,
         "all": show_all,
         "add-email": add_email,
+        "change-email": change_email,
         "email": show_email,
         "add-birthday": add_birthday,
         "show-birthday": show_birthday,

@@ -21,7 +21,7 @@ def change_contact(args: List[str], book: AddressBook) -> str:
     record = book.find(name)
     if not record: raise KeyError
     record.edit_phone(old_p, new_p)
-    return "Contact updated."
+    return f"{name}'s phone updated."
 
 @input_error
 def show_phones(args: List[str], book: AddressBook) -> str:
@@ -53,6 +53,14 @@ def show_email(args: List[str], book: AddressBook) -> str:
         return "No emails found."
 
     return f"{name}: {', '.join(e.value for e in record.emails)}"
+
+@input_error
+def change_email(args: List[str], book: AddressBook) -> str:
+    name, old_e, new_e = args
+    record = book.find(name)
+    if not record: raise KeyError
+    record.edit_email(old_e, new_e)
+    return f"{name}'s email updated."
 
 @input_error
 def add_birthday(args: List[str], book: AddressBook) -> str:
