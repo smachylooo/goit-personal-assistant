@@ -99,14 +99,6 @@ def show_birthday(args: List[str], book: AddressBook) -> str:
 
     return f"{name}'s birthday: {record.birthday}"
 
-
-def show_all(args: List[str], book: AddressBook) -> str:
-    if not book.data:
-        return "Book is empty."
-
-    return "\n".join(str(record) for record in book.data.values())
-
-
 def birthdays_next_week(args: List[str], book: AddressBook) -> str:
     upcoming = book.get_upcoming_birthdays()
 

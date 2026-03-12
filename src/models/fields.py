@@ -43,16 +43,6 @@ class Email(Field):
 
 class Birthday(Field):
     @Field.value.setter
-    def value(self, new_value: str) -> None:
-        if isinstance(new_value, str):
-            try:
-                new_value = datetime.strptime(new_value, "%d.%m.%Y").date()
-            except ValueError:
-                raise ValueError("Invalid birthday format. Use DD.MM.YYYY")
-
-        self._value = value
-
-    @Field.value.setter
     def value(self, new_value: str) -> None :
         if isinstance(new_value, str):
             try:
