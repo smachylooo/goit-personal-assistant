@@ -20,7 +20,6 @@ def load_data():
     else:
         book = AddressBook()
 
-
     if NOTES_FILE.exists():
         with open(NOTES_FILE, "rb") as f:
             notes = pickle.load(f)
@@ -28,3 +27,5 @@ def load_data():
         notes = NoteBook()
 
     return book, notes
+
+

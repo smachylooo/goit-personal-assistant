@@ -100,7 +100,10 @@ class AddressBook(UserDict):
             if not record.birthday:
                 continue
 
-            birthday_this_year = record.birthday.value.replace(year=today.year)
+            try:
+                birthday_this_year = record.birthday.value.replace(year=today.year)
+            except ValueError:
+                continue
 
             if birthday_this_year < today:
                 birthday_this_year = birthday_this_year.replace(year=today.year + 1)

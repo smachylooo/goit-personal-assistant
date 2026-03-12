@@ -42,12 +42,18 @@ class Email(Field):
 
 
 class Birthday(Field):
-    @Field.value.setter
-    def value(self, new_value: str) -> None:
-        try:
-            self._value = datetime.strptime(new_value, "%d.%m.%Y").date()
-        except ValueError:
-            raise ValueError("Error: Invalid date format. Use DD.MM.YYYY")
+    def __init__(self, value):
+        # Якщо value — рядок, конвертуємо в date
+        if isinstance(value, str):
+            try:
+                value = datetime.strptime(value, "%d.%m.%Y").date()
+            except ValueError:
+                raise ValueError("Invalid birthday format. Use DD.MM.YYYY")
 
-    def __str__(self) -> str:
-        return self._value.strftime("%d.%m.%Y")
+        self._value = value
+
+    @Field.value.setter
+    def value(self, new_value):
+        if isinstance(new_value, str):
+            new_value = datetime.strptime(new_value, "%d.%m.%Y").date()
+        self._value = new_value
