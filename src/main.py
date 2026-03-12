@@ -1,6 +1,6 @@
 from colorama import init
 from typing import Dict, Callable
-from handlers.contacts import birthdays_next_days
+from handlers.contacts import birthdays_next_days, search_contacts
 from storage import save_data, load_data
 from utils import parse_input
 from models import AddressBook
@@ -38,6 +38,7 @@ def main() -> None:
         "birthdays": birthdays,
         "birthday-week": birthday_week,
         "birthdays-next": birthdays_next_days,
+        "search": search_contacts,
         # Команди для нотаток (передаємо об'єкт notes)
         "add-note": lambda args, book: add_contact_note(args, book, notes),
         "note": lambda args, book: add_general_note(args, notes),

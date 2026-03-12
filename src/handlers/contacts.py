@@ -4,7 +4,6 @@ from utils import input_error
 from datetime import date, timedelta
 import calendar
 
-
 @input_error
 def add_contact(args: List[str], book: AddressBook) -> str:
     name, phone = args
@@ -209,8 +208,6 @@ def birthday_week(args: List[str], book: AddressBook) -> str:
         return header + "\nNo birthdays in this week."
 
     return header + "\n" + "\n".join(results)
-from datetime import date, timedelta
-from utils import input_error
 
 @input_error
 def birthdays_next_days(args: List[str], book: AddressBook) -> str:
@@ -257,3 +254,13 @@ def birthdays_next_days(args: List[str], book: AddressBook) -> str:
         return header + "\nNo birthdays found."
 
     return header + "\n" + "\n".join(results)
+
+@input_error
+def search_contacts(args: List[str], book: AddressBook) -> str:
+    query = " ".join(args)
+    results = book.search(query)
+
+    if not results:
+        return "No matching contacts found."
+
+    return "\n".join(str(r) for r in results)

@@ -1,7 +1,7 @@
 from collections import UserDict
 from datetime import datetime, timedelta
 from typing import List, Optional
-
+from rapidfuzz import fuzz
 from .fields import Name, Phone, Email, Birthday
 from .notes import Note
 
@@ -122,3 +122,25 @@ class AddressBook(UserDict):
                 })
 
         return upcoming
+    
+    def search(self, query: str, threshold: int = 70):
+        query = query.lower()
+        results = []
+
+        for record in self.data.values():
+            score = 0
+
+            name = record.name.value.lower()
+            score = max(score, fuzz.partial_ratio(query, name))
+
+            for phone in record.phones:
+                phone_val = phone.value
+                if query in phone_val:
+                    score = max(score, 85)
+
+            if score >= threshold:
+                results.append((score, record))
+
+        results.sort(key=lambda x: x[0], reverse=True)
+
+        return [record for score, record in results]
