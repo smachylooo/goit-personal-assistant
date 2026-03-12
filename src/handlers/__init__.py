@@ -7,8 +7,10 @@ from .contacts import (
     change_email,
     add_birthday,
     show_birthday,
-    show_all,
     birthdays_next_week,
+    birthdays,
+    birthday_week,
+    birthdays_next_days,
 )
 
 from .notes import (
