@@ -1,23 +1,42 @@
 from colorama import init
 from typing import Dict, Callable
-from handlers.contacts import birthdays_next_days, search_contacts
+from handlers.contacts import *
 from storage import save_data, load_data
 from utils import parse_input
-from handlers import (
-    add_contact, change_contact, show_phones, 
-    add_birthday, show_birthday, birthdays_next_week, add_email, change_email, show_email,
-    add_contact_note, add_general_note, show_notes, 
-    find_note_by_tag, edit_note, delete_note, clear_notes, birthdays, birthday_week
+# from handlers import (
+#     add_contact, change_contact, show_phones, 
+#     add_birthday, show_birthday, birthdays_next_week, add_email, change_email, show_email,
+#     add_contact_note, add_general_note, show_notes, 
+#     find_note_by_tag, edit_note, delete_note, clear_notes, birthdays, birthday_week, show_help
+# )
+
+
+from rich.panel import Panel
+from rich.console import Console
+
+console = Console()
+
+console.print(
+    Panel(
+        "Welcome to the Project_7 Assistant Bot!",
+        style="bold yellow",
+        expand=False
+    )
 )
 
-
+console.print(
+    Panel(
+        "Type 'help' to see available commands.",
+        style="bright_blue",
+        expand=False
+    )
+)
 def main() -> None:
     init(autoreset=True)
     book, notes = load_data()    
-    
-    print("Welcome to the assistant bot!")
+
     commands: Dict[str, Callable] = {
-        "hello": lambda args, b: "How can I help you?",
+        "help": show_help,
         "add": add_contact,
         "change": change_contact,
         "phone": show_phones,
@@ -53,7 +72,7 @@ def main() -> None:
 
             handler = commands.get(command)
             if handler:
-                print(handler(args, book))
+                console.print(handler(args, book))
             else:
                 print("Invalid command.")
     finally:

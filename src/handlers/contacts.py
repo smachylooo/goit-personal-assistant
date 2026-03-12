@@ -3,6 +3,11 @@ from models import Record, AddressBook
 from utils import input_error
 from datetime import date, timedelta
 import calendar
+from rich.console import Console
+from rich.table import Table
+
+console = Console()
+
 
 @input_error
 def add_contact(args: List[str], book: AddressBook) -> str:
@@ -12,33 +17,37 @@ def add_contact(args: List[str], book: AddressBook) -> str:
     if record is None:
         record = Record(name)
         book.add_record(record)
-        message = "Contact added."
-    else:
-        message = "Phone added."
+        record.add_phone(phone)
+        return f"[green]✔ Contact '{name}' added with phone {phone}[/green]"
 
     record.add_phone(phone)
-    return message
+    return f"[cyan]📞 Phone {phone} added to contact '{name}'[/cyan]"
 
 
 @input_error
 def change_contact(args: List[str], book: AddressBook) -> str:
     name, old_p, new_p = args
     record = book.find(name)
+
     if not record:
         raise KeyError
 
     record.edit_phone(old_p, new_p)
-    return f"{name}'s phone updated."
+
+    return f"[yellow]✏ Phone for '{name}' updated: {old_p} → {new_p}[/yellow]"
 
 
 @input_error
 def show_phones(args: List[str], book: AddressBook) -> str:
     name = args[0]
     record = book.find(name)
+
     if not record:
         raise KeyError
 
-    return f"{name}: {', '.join(p.value for p in record.phones)}"
+    phones = ", ".join(p.value for p in record.phones)
+
+    return f"[cyan]📞 {name}: {phones}[/cyan]"
 
 
 @input_error
@@ -50,7 +59,8 @@ def add_email(args: List[str], book: AddressBook) -> str:
         raise KeyError
 
     record.add_email(email)
-    return "Email added."
+
+    return f"[green]✉ Email '{email}' added to {name}[/green]"
 
 
 @input_error
@@ -62,31 +72,35 @@ def show_email(args: List[str], book: AddressBook) -> str:
         raise KeyError
 
     if not record.emails:
-        return "No emails found."
+        return "[yellow]No emails found[/yellow]"
 
-    return f"{name}: {', '.join(e.value for e in record.emails)}"
+    return f"[cyan]✉ {name}: {', '.join(e.value for e in record.emails)}[/cyan]"
 
 
 @input_error
 def change_email(args: List[str], book: AddressBook) -> str:
     name, old_e, new_e = args
     record = book.find(name)
+
     if not record:
         raise KeyError
 
     record.edit_email(old_e, new_e)
-    return f"{name}'s email updated."
+
+    return f"[yellow]✏ Email for '{name}' updated[/yellow]"
 
 
 @input_error
 def add_birthday(args: List[str], book: AddressBook) -> str:
     name, bday = args
     record = book.find(name)
+
     if not record:
         raise KeyError
 
     record.add_birthday(bday)
-    return "Birthday added."
+
+    return f"[magenta]🎂 Birthday for '{name}' set to {bday}[/magenta]"
 
 
 @input_error
@@ -95,18 +109,18 @@ def show_birthday(args: List[str], book: AddressBook) -> str:
     record = book.find(name)
 
     if not record or not record.birthday:
-        return "Error: Birthday not found."
+        return "[red]Birthday not found[/red]"
 
-    return f"{name}'s birthday: {record.birthday}"
+    return f"[magenta]🎂 {name}'s birthday: {record.birthday}[/magenta]"
 
 def birthdays_next_week(args: List[str], book: AddressBook) -> str:
     upcoming = book.get_upcoming_birthdays()
 
     if not upcoming:
-        return "No upcoming birthdays."
+        return "[yellow]No upcoming birthdays[/yellow]"
 
     return "\n".join(
-        f"{item['name']}: {item['congratulation_date']}"
+        f"[magenta]🎉 {item['name']} → {item['congratulation_date']}[/magenta]"
         for item in upcoming
     )
 
@@ -116,10 +130,12 @@ def birthdays(args: List[str], book: AddressBook) -> str:
 
     for record in book.data.values():
         if record.birthday:
-            lines.append(f"{record.name.value} - {record.birthday}")
+            lines.append(
+                f"[magenta]🎂 {record.name.value} - {record.birthday}[/magenta]"
+            )
 
     if not lines:
-        return "No birthdays found."
+        return "[yellow]No birthdays found[/yellow]"
 
     return "\n".join(lines)
 
@@ -237,15 +253,16 @@ def birthdays_next_days(args: List[str], book: AddressBook) -> str:
         if 0 <= delta_days <= days_limit:
             date_str = birthday_this_year.strftime("%d %B")
             results.append(
-                f"{record.name.value} – {date_str} (after {delta_days} days)"
+                f"[magenta]🎉 {record.name.value} – {date_str} (after {delta_days} days)[/magenta]"
             )
 
     header = f"Birthdays in the next {days_limit} days:"
-
+  
     if not results:
         return header + "\nNo birthdays found."
 
     return header + "\n" + "\n".join(results)
+
 
 @input_error
 def search_contacts(args: List[str], book: AddressBook) -> str:
@@ -253,6 +270,52 @@ def search_contacts(args: List[str], book: AddressBook) -> str:
     results = book.search(query)
 
     if not results:
-        return "No matching contacts found."
+        return "[yellow]No matching contacts found[/yellow]"
 
-    return "\n".join(str(r) for r in results)
+    return "\n".join(f"[cyan]🔎 {str(r)}[/cyan]" for r in results)
+
+def show_help(args, book):
+
+    table = Table(
+        title="Assistant Bot Commands",
+        header_style="bold white",
+        border_style="bright_blue",
+        expand=True
+    )
+
+    table.add_column("Command", style="cyan", no_wrap=True)
+    table.add_column("Arguments", style="yellow", no_wrap=True)
+    table.add_column("Description", style="green")
+
+    table.add_row("add", r"\[name] \[phone]", "Add new contact or add phone")
+    table.add_row("change", r"\[name] \[old_phone] \[new_phone]", "Change phone number")
+    table.add_row("phone", r"\[name]", "Show contact phone numbers")
+
+    table.add_row("add-email", r"\[name] \[email]", "Add email to contact")
+    table.add_row("change-email", r"\[name] \[old_email] \[new_email]", "Change contact email")
+    table.add_row("email", r"\[name]", "Show contact emails")
+
+    table.add_row("add-birthday", r"\[name] \[DD.MM.YYYY]", "Add birthday to contact")
+    table.add_row("show-birthday", r"\[name]", "Show contact birthday")
+
+    table.add_row("birthdays-next-week", "none", "Show upcoming birthdays in next week")
+    table.add_row("birthdays", "none", "Show all contacts with birthdays")
+    table.add_row("birthday-week", r"\[month] \[week_number]", "Birthdays in specific week of month")
+    table.add_row("birthdays-next", r"\[days]", "Birthdays within next N days")
+
+    table.add_row("search", r"\[query]", "Search contacts by name or phone")
+
+    table.add_row("add-note", r"\[name] \[text]", "Add note to contact")
+    table.add_row("note", r"\[text]", "Add general note")
+    table.add_row("notes", "none", "Show all notes")
+    table.add_row("find-tag", r"\[tag]", "Find notes by tag")
+    table.add_row("edit-note", r"\[note_id] \[new_text]", "Edit existing note")
+    table.add_row("delete-note", r"\[note_id]", "Delete note")
+    table.add_row("clear-notes", "none", "Delete all notes")
+
+    table.add_row("help", "none", "Show this help message")
+    table.add_row("exit / close", "none", "Exit the program")
+
+    console.print(table)
+
+    return ""
