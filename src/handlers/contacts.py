@@ -3,10 +3,7 @@ from models import Record, AddressBook
 from utils import input_error
 from datetime import date, timedelta
 import calendar
-from rich.console import Console
-from rich.table import Table
 
-console = Console()
 
 
 @input_error
@@ -274,48 +271,3 @@ def search_contacts(args: List[str], book: AddressBook) -> str:
 
     return "\n".join(f"[cyan]🔎 {str(r)}[/cyan]" for r in results)
 
-def show_help(args, book):
-
-    table = Table(
-        title="Assistant Bot Commands",
-        header_style="bold white",
-        border_style="bright_blue",
-        expand=True
-    )
-
-    table.add_column("Command", style="cyan", no_wrap=True)
-    table.add_column("Arguments", style="yellow", no_wrap=True)
-    table.add_column("Description", style="green")
-
-    table.add_row("add", r"\[name] \[phone]", "Add new contact or add phone")
-    table.add_row("change", r"\[name] \[old_phone] \[new_phone]", "Change phone number")
-    table.add_row("phone", r"\[name]", "Show contact phone numbers")
-
-    table.add_row("add-email", r"\[name] \[email]", "Add email to contact")
-    table.add_row("change-email", r"\[name] \[old_email] \[new_email]", "Change contact email")
-    table.add_row("email", r"\[name]", "Show contact emails")
-
-    table.add_row("add-birthday", r"\[name] \[DD.MM.YYYY]", "Add birthday to contact")
-    table.add_row("show-birthday", r"\[name]", "Show contact birthday")
-
-    table.add_row("birthdays-next-week", "none", "Show upcoming birthdays in next week")
-    table.add_row("birthdays", "none", "Show all contacts with birthdays")
-    table.add_row("birthday-week", r"\[month] \[week_number]", "Birthdays in specific week of month")
-    table.add_row("birthdays-next", r"\[days]", "Birthdays within next N days")
-
-    table.add_row("search", r"\[query]", "Search contacts by name or phone")
-
-    table.add_row("add-note", r"\[name] \[text]", "Add note to contact")
-    table.add_row("note", r"\[text]", "Add general note")
-    table.add_row("notes", "none", "Show all notes")
-    table.add_row("find-tag", r"\[tag]", "Find notes by tag")
-    table.add_row("edit-note", r"\[note_id] \[new_text]", "Edit existing note")
-    table.add_row("delete-note", r"\[note_id]", "Delete note")
-    table.add_row("clear-notes", "none", "Delete all notes")
-
-    table.add_row("help", "none", "Show this help message")
-    table.add_row("exit / close", "none", "Exit the program")
-
-    console.print(table)
-
-    return ""

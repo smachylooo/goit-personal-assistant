@@ -1,12 +1,35 @@
 from colorama import init
 from typing import Dict, Callable
 
-from handlers.contacts import *
+from handlers.contacts import (
+    add_contact,
+    change_contact,
+    show_phones,
+    add_email,
+    show_email,
+    change_email,
+    add_birthday,
+    show_birthday,
+    birthdays_next_week,
+    birthdays,
+    birthday_week,
+    birthdays_next_days,
+    search_contacts,
+)
 from storage import save_data, load_data
 from utils import parse_input
-
+from helper import show_help
 from rich.panel import Panel
 from rich.console import Console
+from handlers.notes import (
+    add_contact_note,
+    add_general_note,
+    show_notes,
+    find_note_by_tag,
+    edit_note,
+    delete_note,
+    clear_notes
+)
 
 console = Console()
 
@@ -71,7 +94,9 @@ def main() -> None:
             handler = commands.get(command)
 
             if handler:
-                console.print(handler(args, book))
+                result = handler(args, book)
+                if result:
+                    console.print(result)
             else:
                 console.print("[red]Invalid command[/red]")
 
