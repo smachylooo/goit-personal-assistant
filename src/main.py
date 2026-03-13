@@ -1,23 +1,44 @@
 from colorama import init
 from typing import Dict, Callable
-from handlers.contacts import birthdays_next_days, search_contacts
-from storage import save_data, load_data
-from utils import parse_input
 from handlers import (
     add_contact, change_contact, show_phones, 
     add_birthday, show_birthday, birthdays_next_week, add_email, change_email, show_email,
     add_contact_note, add_general_note, show_notes, 
-    find_note_by_tag, edit_note, delete_note, clear_notes, birthdays, birthday_week
+    find_note_by_tag, edit_note, delete_note, clear_notes, birthdays, birthday_week, birthdays_next_days, search_contacts
+)
+
+from storage import save_data, load_data
+from utils import parse_input
+from helper import show_help
+from rich.panel import Panel
+from rich.console import Console
+
+console = Console()
+
+console.print(
+    Panel(
+        "Welcome to the Project_7 Assistant Bot!",
+        style="bold yellow",
+        expand=False
+    )
+)
+
+console.print(
+    Panel(
+        "Type 'help' to see available commands.",
+        style="bright_blue",
+        expand=False
+    )
 )
 
 
 def main() -> None:
     init(autoreset=True)
-    book, notes = load_data()    
-    
-    print("Welcome to the assistant bot!")
+
+    book, notes = load_data()
+
     commands: Dict[str, Callable] = {
-        "hello": lambda args, b: "How can I help you?",
+        "help": show_help,
         "add": add_contact,
         "change": change_contact,
         "phone": show_phones,
@@ -43,7 +64,8 @@ def main() -> None:
     try:
         while True:
             user_input: str = input("Enter a command: ").strip()
-            if not user_input: continue
+            if not user_input:
+                continue
 
             command, args = parse_input(user_input)
 
@@ -52,12 +74,17 @@ def main() -> None:
                 break
 
             handler = commands.get(command)
+
             if handler:
-                print(handler(args, book))
+                result = handler(args, book)
+                if result:
+                    console.print(result)
             else:
-                print("Invalid command.")
+                console.print("[red]Invalid command[/red]")
+
     finally:
         save_data(book, notes)
+
 
 if __name__ == "__main__":
     main()

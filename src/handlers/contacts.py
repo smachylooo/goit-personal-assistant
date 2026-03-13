@@ -4,6 +4,8 @@ from utils import input_error
 from datetime import date, timedelta
 import calendar
 
+
+
 @input_error
 def add_contact(args: List[str], book: AddressBook) -> str:
     name, phone = args
@@ -12,33 +14,37 @@ def add_contact(args: List[str], book: AddressBook) -> str:
     if record is None:
         record = Record(name)
         book.add_record(record)
-        message = "Contact added."
-    else:
-        message = "Phone added."
+        record.add_phone(phone)
+        return f"[green]✔ Contact '{name}' added with phone {phone}[/green]"
 
     record.add_phone(phone)
-    return message
+    return f"[cyan]📞 Phone {phone} added to contact '{name}'[/cyan]"
 
 
 @input_error
 def change_contact(args: List[str], book: AddressBook) -> str:
     name, old_p, new_p = args
     record = book.find(name)
+
     if not record:
         raise KeyError
 
     record.edit_phone(old_p, new_p)
-    return f"{name}'s phone updated."
+
+    return f"[yellow]✏ Phone for '{name}' updated: {old_p} → {new_p}[/yellow]"
 
 
 @input_error
 def show_phones(args: List[str], book: AddressBook) -> str:
     name = args[0]
     record = book.find(name)
+
     if not record:
         raise KeyError
 
-    return f"{name}: {', '.join(p.value for p in record.phones)}"
+    phones = ", ".join(p.value for p in record.phones)
+
+    return f"[cyan]📞 {name}: {phones}[/cyan]"
 
 
 @input_error
@@ -50,7 +56,8 @@ def add_email(args: List[str], book: AddressBook) -> str:
         raise KeyError
 
     record.add_email(email)
-    return "Email added."
+
+    return f"[green]✉ Email '{email}' added to {name}[/green]"
 
 
 @input_error
@@ -62,31 +69,35 @@ def show_email(args: List[str], book: AddressBook) -> str:
         raise KeyError
 
     if not record.emails:
-        return "No emails found."
+        return "[yellow]No emails found[/yellow]"
 
-    return f"{name}: {', '.join(e.value for e in record.emails)}"
+    return f"[cyan]✉ {name}: {', '.join(e.value for e in record.emails)}[/cyan]"
 
 
 @input_error
 def change_email(args: List[str], book: AddressBook) -> str:
     name, old_e, new_e = args
     record = book.find(name)
+
     if not record:
         raise KeyError
 
     record.edit_email(old_e, new_e)
-    return f"{name}'s email updated."
+
+    return f"[yellow]✏ Email for '{name}' updated[/yellow]"
 
 
 @input_error
 def add_birthday(args: List[str], book: AddressBook) -> str:
     name, bday = args
     record = book.find(name)
+
     if not record:
         raise KeyError
 
     record.add_birthday(bday)
-    return "Birthday added."
+
+    return f"[magenta]🎂 Birthday for '{name}' set to {bday}[/magenta]"
 
 
 @input_error
@@ -95,18 +106,18 @@ def show_birthday(args: List[str], book: AddressBook) -> str:
     record = book.find(name)
 
     if not record or not record.birthday:
-        return "Error: Birthday not found."
+        return "[red]Birthday not found[/red]"
 
-    return f"{name}'s birthday: {record.birthday}"
+    return f"[magenta]🎂 {name}'s birthday: {record.birthday}[/magenta]"
 
 def birthdays_next_week(args: List[str], book: AddressBook) -> str:
     upcoming = book.get_upcoming_birthdays()
 
     if not upcoming:
-        return "No upcoming birthdays."
+        return "[yellow]No upcoming birthdays[/yellow]"
 
     return "\n".join(
-        f"{item['name']}: {item['congratulation_date']}"
+        f"[magenta]🎉 {item['name']} → {item['congratulation_date']}[/magenta]"
         for item in upcoming
     )
 
@@ -116,10 +127,12 @@ def birthdays(args: List[str], book: AddressBook) -> str:
 
     for record in book.data.values():
         if record.birthday:
-            lines.append(f"{record.name.value} - {record.birthday}")
+            lines.append(
+                f"[magenta]🎂 {record.name.value} - {record.birthday}[/magenta]"
+            )
 
     if not lines:
-        return "No birthdays found."
+        return "[yellow]No birthdays found[/yellow]"
 
     return "\n".join(lines)
 
@@ -237,15 +250,16 @@ def birthdays_next_days(args: List[str], book: AddressBook) -> str:
         if 0 <= delta_days <= days_limit:
             date_str = birthday_this_year.strftime("%d %B")
             results.append(
-                f"{record.name.value} – {date_str} (after {delta_days} days)"
+                f"[magenta]🎉 {record.name.value} – {date_str} (after {delta_days} days)[/magenta]"
             )
 
     header = f"Birthdays in the next {days_limit} days:"
-
+  
     if not results:
         return header + "\nNo birthdays found."
 
     return header + "\n" + "\n".join(results)
+
 
 @input_error
 def search_contacts(args: List[str], book: AddressBook) -> str:
@@ -253,6 +267,7 @@ def search_contacts(args: List[str], book: AddressBook) -> str:
     results = book.search(query)
 
     if not results:
-        return "No matching contacts found."
+        return "[yellow]No matching contacts found[/yellow]"
 
-    return "\n".join(str(r) for r in results)
+    return "\n".join(f"[cyan]🔎 {str(r)}[/cyan]" for r in results)
+

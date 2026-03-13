@@ -11,6 +11,7 @@ from .contacts import (
     birthdays,
     birthday_week,
     birthdays_next_days,
+    search_contacts
 )
 
 from .notes import (
