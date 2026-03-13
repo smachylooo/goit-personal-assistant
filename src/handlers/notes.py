@@ -38,34 +38,36 @@ def _format_tags(tags: List[str]) -> str:
 @input_error
 def add_contact_note(args: List[str], book: AddressBook, notes: NoteBook) -> str:
     if len(args) < 2:
-        return "Error: Enter name and note text."
+        return "[red]❌ Error: Enter name and note text[/red]"
 
     name = args[0]
     text = " ".join(args[1:])
     record = book.find(name)
 
     if not record:
-        return f"Contact {name} not found."
+        return f"[red]❌ Contact '{name}' not found[/red]"
 
     new_note = record.add_note(text)
     note_id = notes.add_note(new_note, name)
-    return f"Note added to {name} (ID: {note_id})."
+
+    return f"[green]📎 Note added to '{name}' (ID: {note_id})[/green]"
 
 
 @input_error
 def add_general_note(args: List[str], notes: NoteBook) -> str:
     if not args:
-        return "Error: Enter note text."
+        return "[red]❌ Error: Enter note text[/red]"
 
     text = " ".join(args)
     new_note = Note(text)
     note_id = notes.add_note(new_note)
-    return f"General note saved (ID: {note_id})."
+
+    return f"[green]📝 Note saved (ID: {note_id})[/green]"
 
 
 def show_notes(args: List[str], notes: NoteBook) -> Union[PrettyTable, str]:
     if not notes.data:
-        return "Notebook is empty."
+        return "[yellow]📚 Notebook is empty[/yellow]"
 
     table = _build_notes_table()
 
@@ -86,22 +88,22 @@ def show_notes(args: List[str], notes: NoteBook) -> Union[PrettyTable, str]:
 @input_error
 def edit_note(args: List[str], notes: NoteBook) -> str:
     if len(args) < 2:
-        return "Error: Enter ID and additional text."
+        return "[red]❌ Error: Enter ID and additional text[/red]"
 
     note_id = int(args[0])
     text = " ".join(args[1:])
 
     if note_id in notes.data:
         notes.data[note_id]["note"].add_to_end(text)
-        return f"Note {note_id} updated."
+        return f"[yellow]✏ Note {note_id} updated[/yellow]"
 
-    return "Note not found."
+    return "[red]❌ Note not found[/red]"
 
 
 @input_error
 def find_note_by_tag(args: List[str], notes: NoteBook) -> Union[PrettyTable, str]:
     if not args:
-        return "Error: Please provide a tag (e.g., 'find-tag work')."
+        return "[red]❌ Error: Provide a tag (e.g., 'find-tag work')[/red]"
 
     tag_to_find = args[0].lower().replace("#", "")
     table = _build_notes_table()
@@ -120,7 +122,7 @@ def find_note_by_tag(args: List[str], notes: NoteBook) -> Union[PrettyTable, str
             ])
             found = True
 
-    return table if found else f"No notes found with tag #{tag_to_find}."
+    return table if found else f"[yellow]🔎 No notes found with tag #{tag_to_find}[/yellow]"
 
 
 @input_error
@@ -128,9 +130,9 @@ def delete_note(args: List[str], notes: NoteBook) -> str:
     note_id = int(args[0])
 
     if notes.delete_note(note_id):
-        return f"Note {note_id} deleted."
+        return f"[red]🗑 Note {note_id} deleted[/red]"
 
-    return "Note not found."
+    return "[red]❌ Note not found[/red]"
 
 
 def clear_notes(args: List[str], notes: NoteBook) -> str:
@@ -138,6 +140,6 @@ def clear_notes(args: List[str], notes: NoteBook) -> str:
 
     if confirm == "y":
         notes.data.clear()
-        return "All notes deleted."
+        return "[red]🗑 All notes deleted[/red]"
 
-    return "Cancelled."
+    return "[yellow]⚠ Operation cancelled[/yellow]"
