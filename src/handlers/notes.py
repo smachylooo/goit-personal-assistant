@@ -1,25 +1,37 @@
 import random
-from typing import List, Union
+from typing import List
 
-from prettytable import PrettyTable
+from rich.table import Table
+from rich.console import Console
 from colorama import Fore, Style
 
 from models import Note, AddressBook, NoteBook
 from utils import input_error
 
-NOTE_COLORS = [Fore.CYAN, Fore.GREEN, Fore.YELLOW, Fore.MAGENTA, Fore.BLUE, Fore.LIGHTWHITE_EX]
+console = Console()
+
+NOTE_COLORS = [
+    Fore.CYAN,
+    Fore.GREEN,
+    Fore.YELLOW,
+    Fore.MAGENTA,
+    Fore.BLUE,
+    Fore.LIGHTWHITE_EX,
+]
 
 
-def _build_notes_table() -> PrettyTable:
-    table = PrettyTable()
-    table.field_names = ["ID", "Owner", "Content", "Tags"]
-    table.align["Content"] = "l"
-    table.align["Owner"] = "l"
+def _build_notes_table() -> Table:
+    table = Table(
+        title="📚 Notes",
+        header_style="bold white",
+        border_style="bright_blue",
+        expand=True
+    )
 
-    if hasattr(table, "max_widths"):
-        table.max_widths = {"Content": 50}
-    elif hasattr(table, "max_width"):
-        table.max_width = 50
+    table.add_column("ID", style="cyan", no_wrap=True)
+    table.add_column("Owner", style="green")
+    table.add_column("Content", style="white")
+    table.add_column("Tags", style="yellow")
 
     return table
 
@@ -32,6 +44,7 @@ def _format_tags(tags: List[str]) -> str:
         f"{random.choice(NOTE_COLORS)}#{tag}{Style.RESET_ALL}"
         for tag in tags
     ]
+
     return ", ".join(colored_tags)
 
 
@@ -65,9 +78,10 @@ def add_general_note(args: List[str], notes: NoteBook) -> str:
     return f"[green]📝 Note saved (ID: {note_id})[/green]"
 
 
-def show_notes(args: List[str], notes: NoteBook) -> Union[PrettyTable, str]:
+def show_notes(args: List[str], notes: NoteBook):
     if not notes.data:
-        return "[yellow]📚 Notebook is empty[/yellow]"
+        console.print("[yellow]📚 Notebook is empty[/yellow]")
+        return
 
     table = _build_notes_table()
 
@@ -75,14 +89,14 @@ def show_notes(args: List[str], notes: NoteBook) -> Union[PrettyTable, str]:
         note = data["note"]
         owner = data["owner"] if data["owner"] else "---"
 
-        table.add_row([
-            note_id,
+        table.add_row(
+            str(note_id),
             owner,
             note.text,
             _format_tags(note.tags),
-        ])
+        )
 
-    return table
+    console.print(table)
 
 
 @input_error
@@ -101,12 +115,14 @@ def edit_note(args: List[str], notes: NoteBook) -> str:
 
 
 @input_error
-def find_note_by_tag(args: List[str], notes: NoteBook) -> Union[PrettyTable, str]:
+def find_note_by_tag(args: List[str], notes: NoteBook):
     if not args:
-        return "[red]❌ Error: Provide a tag (e.g., 'find-tag work')[/red]"
+        console.print("[red]❌ Error: Provide a tag (e.g., 'find-tag work')[/red]")
+        return
 
     tag_to_find = args[0].lower().replace("#", "")
     table = _build_notes_table()
+
     found = False
 
     for note_id, data in notes.data.items():
@@ -114,15 +130,18 @@ def find_note_by_tag(args: List[str], notes: NoteBook) -> Union[PrettyTable, str
         owner = data["owner"] if data["owner"] else "---"
 
         if tag_to_find in note.tags:
-            table.add_row([
-                note_id,
+            table.add_row(
+                str(note_id),
                 owner,
                 note.text,
                 _format_tags(note.tags),
-            ])
+            )
             found = True
 
-    return table if found else f"[yellow]🔎 No notes found with tag #{tag_to_find}[/yellow]"
+    if found:
+        console.print(table)
+    else:
+        console.print(f"[yellow]🔎 No notes found with tag #{tag_to_find}[/yellow]")
 
 
 @input_error
