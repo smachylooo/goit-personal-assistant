@@ -3,7 +3,7 @@ from typing import List
 
 from rich.table import Table
 from rich.console import Console
-from colorama import Fore, Style
+from rich.text import Text
 
 from models import Note, AddressBook, NoteBook
 from utils import input_error
@@ -11,12 +11,12 @@ from utils import input_error
 console = Console()
 
 NOTE_COLORS = [
-    Fore.CYAN,
-    Fore.GREEN,
-    Fore.YELLOW,
-    Fore.MAGENTA,
-    Fore.BLUE,
-    Fore.LIGHTWHITE_EX,
+    "cyan",
+    "green",
+    "yellow",
+    "magenta",
+    "blue",
+    "white",
 ]
 
 
@@ -36,16 +36,20 @@ def _build_notes_table() -> Table:
     return table
 
 
-def _format_tags(tags: List[str]) -> str:
+def _format_tags(tags: List[str]):
     if not tags:
         return "-"
 
-    colored_tags = [
-        f"{random.choice(NOTE_COLORS)}#{tag}{Style.RESET_ALL}"
-        for tag in tags
-    ]
+    text = Text()
 
-    return ", ".join(colored_tags)
+    for i, tag in enumerate(tags):
+        color = random.choice(NOTE_COLORS)
+        text.append(f"#{tag}", style=color)
+
+        if i < len(tags) - 1:
+            text.append(", ")
+
+    return text
 
 
 @input_error

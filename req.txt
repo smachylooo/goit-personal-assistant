@@ -1,8 +1,7 @@
-colorama==0.4.6
-phonenumbers==9.0.25
-RapidFuzz==3.14.3
-prettytable==3.10.0
 markdown-it-py==4.0.0
 mdurl==0.1.2
+phonenumbers==9.0.25
 Pygments==2.19.2
+RapidFuzz==3.14.3
 rich==14.3.3
+wcwidth==0.6.0

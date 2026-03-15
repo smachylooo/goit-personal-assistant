@@ -1,4 +1,3 @@
-from colorama import init
 from typing import Dict, Callable
 from handlers import (
     add_contact, change_contact, show_phones, 
@@ -33,8 +32,6 @@ console.print(
 
 
 def main() -> None:
-    init(autoreset=True)
-
     book, notes = load_data()
 
     commands: Dict[str, Callable] = {
