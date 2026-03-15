@@ -1,6 +1,6 @@
 from typing import List
-from models import Record, AddressBook
-from utils import input_error
+from assistant.models import Record, AddressBook
+from assistant.utils import input_error
 from datetime import date, timedelta
 import calendar
 

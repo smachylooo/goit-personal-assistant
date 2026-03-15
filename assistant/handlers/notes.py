@@ -5,8 +5,8 @@ from rich.table import Table
 from rich.console import Console
 from rich.text import Text
 
-from models import Note, AddressBook, NoteBook
-from utils import input_error
+from assistant.models import Note, AddressBook, NoteBook
+from assistant.utils import input_error
 
 console = Console()
 

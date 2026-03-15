@@ -1,6 +1,6 @@
 import pickle
 from pathlib import Path
-from models import AddressBook, NoteBook
+from assistant.models import AddressBook, NoteBook
 
 FILE_PATH = Path(__file__).resolve().parent.parent
 BOOK_FILE = FILE_PATH / "addressbook.pkl"

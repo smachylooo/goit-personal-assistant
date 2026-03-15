@@ -1,14 +1,14 @@
 from typing import Dict, Callable
-from handlers import (
+from assistant.handlers import (
     add_contact, change_contact, show_phones, 
     add_birthday, show_birthday, birthdays_next_week, add_email, change_email, show_email,
     add_contact_note, add_general_note, show_notes, 
     find_note_by_tag, edit_note, delete_note, clear_notes, birthdays, birthday_week, birthdays_next_days, search_contacts
 )
 
-from storage import save_data, load_data
-from utils import parse_input
-from helper import show_help
+from assistant.storage import save_data, load_data
+from assistant.utils import parse_input
+from assistant.helper import show_help
 from rich.panel import Panel
 from rich.console import Console
 

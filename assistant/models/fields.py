@@ -1,5 +1,5 @@
 from datetime import datetime
-from helper import is_valid_email, normalize_phone
+from assistant.helper import is_valid_email, normalize_phone
 
 class Field:
     def __init__(self, value: str) -> None:

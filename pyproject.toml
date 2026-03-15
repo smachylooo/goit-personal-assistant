@@ -1,0 +1,12 @@
+[project]
+name = "assistant-bot"
+version = "0.1.0"
+description = "CLI assistant bot"
+dependencies = [
+    "rich",
+    "phonenumbers",
+    "rapidfuzz"
+]
+
+[project.scripts]
+assistant-bot = "assistant.main:main"

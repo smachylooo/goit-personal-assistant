@@ -15,3 +15,5 @@ venv/
 
 # Project data files
 *.pkl
+
+/assistant_bot.egg-info
